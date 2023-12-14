@@ -37,15 +37,18 @@ impl State {
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
+        ctx.set_active_console(0);
         ctx.cls();
-        self.player.update(ctx, &self.map);
-        self.map.render(ctx);
-        self.player.render(ctx);
+        ctx.set_active_console(1);
+        ctx.cls();
+        self.player.update(ctx, &self.map, &mut self.camera);
+        self.map.render(ctx, &self.camera);
+        self.player.render(ctx, &self.camera);
     }
 }
 
 fn main() -> BError{
-    let content = BTermBuilder::simple80x50()
+    let content = BTermBuilder::new()
         .with_title("Dungeon Crawler")
         .with_fps_cap(30.0)
         .with_dimensions(DISPLAY_WIDTH, DISPLAY_HEIGHT)
@@ -53,6 +56,7 @@ fn main() -> BError{
         .with_resource_path("resources/")
         .with_font("dungeonfont.png", 32, 32)
         .with_simple_console(DISPLAY_WIDTH, DISPLAY_HEIGHT, "dungeonfont.png")
+        .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, "dungeonfont.png")
         .build()?;
     main_loop(content, State::new())
 }
